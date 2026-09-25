@@ -1,0 +1,95 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.venv/
+venv/
+ENV/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Hugging Face / caches / models
+.cache/
+**/huggingface/
+**/.huggingface/
+transformers_cache/
+HF_HOME/
+*.bin
+*.safetensors
+*.pt
+*.pth
+*.onnx
+*.gguf
+checkpoints/
+runs/
+wandb/
+mlruns/
+lightning_logs/
+
+# Large data / exports
+data/
+*.jsonl
+*.jsonl.gz
+*.arrow
+*.parquet
+*.csv.gz
+exports/
+adapters/
+merged_model/
+
+# Env / secrets / local SDL
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+**/credentials*
+**/token*
+*.local.yaml
+sdl/*.local.yaml
+sdl/*secrets*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~
+
+# Thesis journal (personal)
+journal/
+thesis_journal/
+*.journal.md
+
+# Akash / provider local
+*.akash.local
+wallet.json
