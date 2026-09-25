@@ -1,0 +1,88 @@
+# BioDecision — Unsloth TRAIN lease (stub)
+# Source: akash-network/awesome-akash/unsloth-ai/deploy.yaml (image pin 2026.4.6…)
+# BEFORE DEPLOY in Console Air:
+#   1. Replace CHANGE_ME_* passwords (defaults in upstream are unsafe)
+#   2. Confirm you have enough ACT escrow for GPU hours (11 ACT is often too thin for A100 — mint more)
+#   3. Keep some AKT for gas
+#   4. Train only — tear down when done. Serve = separate lease (vLLM).
+# Never commit filled secrets. Prefer copying to unsloth-train.local.yaml (gitignored).
+
+---
+version: "2.0"
+
+services:
+  unsloth:
+    image: unsloth/unsloth:2026.4.6-pt2.10.0-vllm-0.16.0-cu12.8-studio-release-v0.1.36-beta
+    command:
+      - /bin/bash
+      - -c
+      - |
+        export HOME=/home/unsloth
+        mkdir -p /workspace/work /workspace/.cache/huggingface
+        /opt/venv/bin/jupyter lab --ip=0.0.0.0 --port=8888 --no-browser \
+          --ServerApp.token="${JUPYTER_PASSWORD}" \
+          --ServerApp.allow_origin='*' --ServerApp.root_dir=/workspace &
+        exec /opt/venv/bin/unsloth studio -H 0.0.0.0 -p 8000
+    expose:
+      - port: 8888
+        as: 8888
+        to:
+          - global: true
+      - port: 8000
+        as: 8000
+        to:
+          - global: true
+    env:
+      - "PATH=/home/unsloth/.local/bin:/opt/venv/bin:/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+      - "VIRTUAL_ENV=/opt/venv"
+      - "CUDA_HOME=/usr/local/cuda"
+      - "HF_HOME=/workspace/.cache/huggingface"
+      - "HF_HUB_ENABLE_HF_TRANSFER=1"
+      - "LD_LIBRARY_PATH=/usr/local/cuda-12.8/lib64:/opt/venv/lib/python3.12/site-packages/torch/lib:/usr/lib/x86_64-linux-gnu:/usr/local/lib"
+      - "PYTHONWARNINGS=ignore"
+      - "JUPYTER_PASSWORD=CHANGE_ME_JUPYTER"
+      - "JUPYTER_PORT=8888"
+      - "USER_PASSWORD=CHANGE_ME_USER"
+      - "UNSLOTH_DOCKER=1"
+      - "UNSLOTH_VLLM_STANDBY=1"
+    params:
+      storage:
+        data:
+          mount: /workspace/work
+          readOnly: false
+
+profiles:
+  compute:
+    unsloth:
+      resources:
+        cpu:
+          units: 8
+        memory:
+          size: 32Gi
+        storage:
+          - size: 100Gi
+          - name: data
+            size: 200Gi
+            attributes:
+              persistent: true
+              class: beta3
+        gpu:
+          units: 1
+          attributes:
+            vendor:
+              nvidia:
+                - model: a100
+                - model: h100
+                - model: a100-80gb
+  placement:
+    dcloud:
+      pricing:
+        unsloth:
+          denom: uact
+          amount: 15000
+
+deployment:
+  unsloth:
+    dcloud:
+      profile: unsloth
+      count: 1
